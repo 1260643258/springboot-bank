@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.bank.mapper.HpfmBankMapper" >
+  <resultMap id="BaseResultMap" type="com.example.bank.model.HpfmBank" >
+    <id column="bank_id" property="bankId" jdbcType="BIGINT" />
+    <result column="bank_code" property="bankCode" jdbcType="VARCHAR" />
+    <result column="bank_name" property="bankName" jdbcType="VARCHAR" />
+    <result column="bank_short_name" property="bankShortName" jdbcType="VARCHAR" />
+    <result column="bank_type_code" property="bankTypeCode" jdbcType="VARCHAR" />
+    <result column="enabled_flag" property="enabledFlag" jdbcType="INTEGER" />
+    <result column="object_version_number" property="objectVersionNumber" jdbcType="BIGINT" />
+    <result column="creation_date" property="creationDate" jdbcType="TIMESTAMP" />
+    <result column="created_by" property="createdBy" jdbcType="BIGINT" />
+    <result column="last_updated_by" property="lastUpdatedBy" jdbcType="BIGINT" />
+    <result column="last_update_date" property="lastUpdateDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+
+  <insert id="insert" parameterType="com.example.bank.model.HpfmBank" >
+    INSERT INTO hpfm_bank (
+        bank_id,
+        bank_code,
+        bank_name,
+        bank_short_name,
+        bank_type_code,
+        enabled_flag,
+        object_version_number,
+        creation_date,
+        created_by,
+        last_updated_by,
+        last_update_date
+    )
+    VALUES
+    (
+        #{bankId,jdbcType=BIGINT},
+        #{bankCode,jdbcType=VARCHAR},
+        #{bankName,jdbcType=VARCHAR},
+        #{bankShortName,jdbcType=VARCHAR},
+        #{bankTypeCode,jdbcType=VARCHAR},
+        #{enabledFlag,jdbcType=INTEGER},
+        #{objectVersionNumber,jdbcType=BIGINT},
+        #{creationDate,jdbcType=TIMESTAMP},
+        #{createdBy,jdbcType=BIGINT},
+        #{lastUpdatedBy,jdbcType=BIGINT},
+        #{lastUpdateDate,jdbcType=TIMESTAMP}
+    )
+  </insert>
+
+    <delete id="removeBankInfo" parameterType="java.lang.Long" >
+        delete from hpfm_bank
+        where bank_id = #{bankId,jdbcType=BIGINT}
+    </delete>
+
+    <update id="updateBankInfo" parameterType="com.example.bank.model.HpfmBank">
+        UPDATE hpfm_bank
+        <set >
+            <if test="bankCode != null" >
+                bank_code = #{bankCode,jdbcType=VARCHAR},
+            </if>
+            <if test="bankName != null" >
+                bank_name = #{bankName,jdbcType=VARCHAR},
+            </if>
+            <if test="bankShortName != null" >
+                bank_short_name = #{bankShortName,jdbcType=VARCHAR},
+            </if>
+            <if test="bankTypeCode != null" >
+                bank_type_code = #{bankTypeCode,jdbcType=VARCHAR},
+            </if>
+            <if test="enabledFlag != null" >
+                enabled_flag = #{enabledFlag,jdbcType=INTEGER},
+            </if>
+            <if test="objectVersionNumber != null" >
+                object_version_number = #{objectVersionNumber,jdbcType=BIGINT},
+            </if>
+            <if test="creationDate != null" >
+                creation_date = #{creationDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createdBy != null" >
+                created_by = #{createdBy,jdbcType=BIGINT},
+            </if>
+            <if test="lastUpdatedBy != null" >
+                last_updated_by = #{lastUpdatedBy,jdbcType=BIGINT},
+            </if>
+            <if test="lastUpdateDate != null" >
+                last_update_date = #{lastUpdateDate,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where bank_id = #{bankId,jdbcType=BIGINT}
+    </update>
+
+    <select id="findBankInfo" resultMap="BaseResultMap" >
+        select bank_id,bank_code,bank_name,bank_short_name,bank_type_code,enabled_flag,object_version_number,creation_date,created_by,last_updated_by,last_update_date
+        from hpfm_bank
+        <!--where 1=1-->
+        <!--<if test="bankCode != null" >-->
+            <!--AND bank_code = #{bankCode,jdbcType=VARCHAR}-->
+        <!--</if>-->
+        <!--<if test="bankName != null" >-->
+            <!--AND bank_name = #{bankName,jdbcType=VARCHAR}-->
+        <!--</if>-->
+        <!--<if test="bankShortName != null" >-->
+            <!--AND bank_short_name = #{bankShortName,jdbcType=SMALLINT}-->
+        <!--</if>-->
+        <!--<if test="bankTypeCode != null" >-->
+            <!--AND bank_type_code = #{bankTypeCode,jdbcType=VARCHAR}-->
+        <!--</if>-->
+        <!--<if test="enabledFlag != null" >-->
+            <!--AND enabled_flag = #{enabledFlag,jdbcType=INTEGER}-->
+        <!--</if>-->
+        <!--<if test="objectVersionNumber != null" >-->
+            <!--AND object_version_number = #{objectVersionNumber,jdbcType=BIGINT}-->
+        <!--</if>-->
+    </select>
+</mapper>

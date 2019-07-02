@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Title</title>
+
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.6/semantic.min.css"/>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.6/semantic.min.js"></script>
+
+    <script>
+        var datas = null;
+        var currentPage = 1;
+       $(document).ready(function(){
+           $("#bankInfoId").hide();
+           bankList(1,5);
+        })
+
+        //加载列表
+        function bankList(currentPage,pageSize)
+        {
+            $.ajax({
+                type: "POST",
+                url: "/findBankInfo",
+                data: {currentPage:currentPage,pageSize:pageSize},
+                dataType: "json",
+                success: function(data){
+                    datas = data;
+                    for (bank in data.list)
+                    {
+                        $("#tableBodyId").append('<tr><td><input type="checkbox" name="checkboxName" id="'+data.list[bank].bankId+'"/></td><td>'+data.list[bank].bankCode+"</td>" +
+                            "<td>"+data.list[bank].bankName+"</td>" +
+                            "<td>"+data.list[bank].bankShortName+"</td>" +
+                            "<td>"+data.list[bank].bankTypeCode+"</td>" +
+                            "<td>"+data.list[bank].enabledFlag+"</td>" +
+                            "<td>"+data.list[bank].objectVersionNumber+"</td></tr>");
+                    }
+                    var navigatepageNums = data.navigatepageNums;
+                    for(index in navigatepageNums)
+                    {
+                        $("#itemId").append('<a class="item" onclick="pageChange('+navigatepageNums[index]+')">'+navigatepageNums[index]+'</a>');
+                    }
+                }
+            });
+        }
+
+        //删除
+        function deleteBankInfo(){
+
+            var checkList = $("input[name='checkboxName']")
+            var count = 0;
+            var currentBankInfo = null;
+            for (index in checkList){
+                var isChecked = checkList[index].checked;
+                if(isChecked==true)
+                {
+                    currentBankInfo = checkList[index];
+                    count++;
+                }
+            }
+            if(count==0)
+            {
+                alert("请选中一条数据！");
+                return;
+            }
+            if(count>1)
+            {
+                alert("只能选择一条数据");
+                return;
+            }
+            var isdelete = confirm("请确认是否删除？");
+            if(isdelete)
+            {
+                var bankId = currentBankInfo.id;
+                $.ajax({
+                    type: "POST",
+                    url: "/removeBankInfo",
+                    data: {bankId:bankId},
+                    success: function(){
+                        location.reload();
+                    }
+                });
+            }
+       }
+
+       //修改
+       function updateBankInfo() {
+           var checkList = $("input[name='checkboxName']")
+           var count = 0;
+           var currentBankInfo = null;
+           for (index in checkList){
+               var isChecked = checkList[index].checked;
+               if(isChecked==true)
+               {
+                   currentBankInfo = checkList[index];
+                   count++;
+               }
+           }
+           if(count==0)
+           {
+               alert("请选中一条数据！");
+               return;
+           }
+           if(count>1)
+           {
+               alert("只能选择一条数据");
+               return;
+           }
+
+           //隐藏table
+           $("#tableIds").hide();
+           $("#bankInfoId").show();
+           //将数据填入表单
+            if(datas!=null)
+            {
+                for(info in datas.list)
+                {
+                    if(datas.list[info].bankId == currentBankInfo.id)
+                    {
+                        $("#bankCode").val(datas.list[info].bankCode);
+                        $("#bankName").val(datas.list[info].bankName);
+                        $("#bankShortName").val(datas.list[info].bankShortName);
+                        $("#bankTypeCode").val(datas.list[info].bankTypeCode);
+                        $("#enabledFlag").val(datas.list[info].enabledFlag);
+                        $("#objectVersionNumber").val(datas.list[info].objectVersionNumber);
+                        $("#creationDate").val(datas.list[info].creationDate);
+                        $("#lastUpdateDate").val(datas.list[info].lastUpdateDate);
+                        $("#createdBy").val(datas.list[info].createdBy);
+                        $("#lastUpdatedBy").val(datas.list[info].lastUpdatedBy);
+                        $("#bankId").val(datas.list[info].bankId);
+                        break;
+                    }
+                }
+            }
+       }
+
+       //添加
+       function addBankInfo() {
+           //隐藏table
+           $("#tableIds").hide();
+           $("#bankInfoId").show();
+           reset();
+       }
+
+       //提交
+       function sub()
+       {
+           var bankInfo ={bankCode:$("#bankCode").val(),bankName:$("#bankName").val(),
+               bankShortName:$("#bankShortName").val(),bankTypeCode:$("#bankTypeCode").val(),
+               enabledFlag:$("#enabledFlag").val(),objectVersionNumber:$("#objectVersionNumber").val(),
+               creationDate:new Date(),lastUpdateDate:new Date(),
+               createdBy:$("#createdBy").val(),lastUpdatedBy:$("#lastUpdatedBy").val(),bankId:$("#bankId").val()};
+           var urls = "/addBankInfo";
+           if($("#bankId").val()>0)
+           {
+               urls = "/updateBankInfo"
+           }
+           $.ajax({
+               type: "POST",
+               url: urls,
+               contentType: "application/json;charset=utf-8",
+               data: JSON.stringify(
+                   bankInfo
+               ),
+               dataType: "json",
+               success: function(){
+               }
+           });
+           location.reload();
+       }
+
+       //重置
+       function reset()
+       {
+           $("#bankCode").val("");
+           $("#bankName").val("");
+           $("#bankShortName").val("");
+           $("#bankTypeCode").val("");
+           $("#enabledFlag").val("");
+           $("#objectVersionNumber").val("");
+           $("#creationDate").val("");
+           $("#lastUpdateDate").val("");
+           $("#createdBy").val("");
+           $("#lastUpdatedBy").val("");
+       }
+
+       function returnIndex()
+       {
+           $("#tableIds").show();
+           $("#bankInfoId").hide();
+       }
+       
+       function pageChange(pageNumber) {
+           document.getElementById("tableBodyId").innerHTML = "";
+           document.getElementById("itemId").innerHTML = "";
+           bankList(pageNumber,5);
+       }
+    </script>
+</head>
+<body>
+<div id="tableIds">
+    <div style="margin-left: 10px;margin-top: 10px;">
+        <button class="ui button" onclick="addBankInfo()"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">
+            增加
+        </font></font></button>
+        <div class="ui button" tabindex="0" onclick="updateBankInfo()"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">
+            修改
+        </font></font></div>
+        <div class="ui button" tabindex="0" onclick="deleteBankInfo()"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">
+            删除
+        </font></font></div>
+    </div>
+    <table class="ui celled padded table">
+        <thead>
+        <tr>
+            <th></th>
+            <th>银行代码</th>
+            <th>银行名称</th>
+            <th>银行简称</th>
+            <th>银行类型</th>
+            <th>是否启用标记</th>
+            <th>版本号</th>
+        </tr></thead>
+        <tbody id="tableBodyId">
+
+        </tbody>
+        <tfoot>
+        <tr><th colspan="5">
+            <div class="ui right floated pagination menu">
+                <a class="icon item">
+                    <i class="left chevron icon"></i>
+                </a>
+                <span id="itemId"></span>
+                <a class="icon item">
+                    <i class="right chevron icon"></i>
+                </a>
+            </div>
+        </th>
+        </tr></tfoot>
+    </table>
+</div>
+
+<!--修改or添加部分 -->
+<div style="width: 400px;margin-left: 200px;" align="center" id="bankInfoId">
+    <form action="/addBankInfo" class="ui form" method="post">
+        <div class="field">
+            <label>银行代码</label>
+            <input type="text" id="bankCode" name="bankCode" placeholder="银行代码"/>
+        </div>
+        <div class="field">
+            <label>银行名称</label>
+            <input type="text" id="bankName" name="bankName" placeholder="银行名称"/>
+        </div>
+        <div class="field">
+            <label>银行简称</label>
+            <input type="text" id="bankShortName" name="bankShortName" placeholder="银行简称"/>
+        </div>
+        <div class="field">
+            <label>银行类型</label>
+            <input type="text" id="bankTypeCode" name="bankTypeCode" placeholder="银行类型"/>
+        </div>
+        <div class="field">
+            <label>是否启用标记</label>
+            <input type="text" id="enabledFlag" name="enabledFlag" placeholder="是否启用标记"/>
+        </div>
+        <div class="field">
+            <label>版本号</label>
+            <input type="text" id="objectVersionNumber" name="objectVersionNumber" placeholder="版本号"/>
+        </div>
+        <!--<div class="field">-->
+            <!--<label>创建时间</label>-->
+            <!--<input type="date" id="creationDate" name="creationDate" placeholder="创建时间"/>-->
+        <!--</div>-->
+        <!--<div class="field">-->
+            <!--<label>最后修改时间</label>-->
+            <!--<input type="date" id="lastUpdateDate" name="lastUpdateDate" placeholder="最后修改时间"/>-->
+        <!--</div>-->
+        <div class="field">
+            <label>创建人</label>
+            <input type="text" id="createdBy" name="createdBy" placeholder="创建人"  value="123"/>
+        </div>
+        <div class="field">
+            <label>最后修改人</label>
+            <input type="text" id="lastUpdatedBy" name="lastUpdatedBy" placeholder="最后修改人"  value="123"/>
+        </div>
+            <input type="text" id="bankId" name="bankId" placeholder="bankId"  readonly="readonly" value="0"/>
+        <button class="ui button" type="submit" onclick="sub()">Submit</button>
+        <!--<input class="ui button" onclick="reset()">reset</input>-->
+        <!--<input class="ui button" onclick="returnIndex()">return</input>-->
+    </form>
+</div>
+</body>
+</html>
