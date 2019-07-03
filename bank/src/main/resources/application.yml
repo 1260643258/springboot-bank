@@ -1,7 +1,7 @@
-
-application:
-  version: 1.0
 spring:
+  application:
+    name: hzero-platform-25855
+    version: 1.0
   jpa:
     database: mysql
   datasource:
@@ -20,6 +20,10 @@ pagehelper:
   support-methods-arguments: true
   params: count=countSql
 server:
-  port: 8082
+  port: 8888
+eureka:
+  client:
+    service-url:
+      defaultZone: http://192.168.3.154:8000/eureka/
 
 
